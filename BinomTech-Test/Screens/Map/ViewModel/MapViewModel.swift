@@ -16,8 +16,8 @@ protocol MapActionsProtocol {
     func didChangeVisibleRegion(_ mapView: MKMapView)
     func createAnnotationView(viewFor annotation: MKAnnotation) -> MKAnnotationView?
     func didSelectAnnotationView(annotationView: MKAnnotationView)
+    func didDismissAnnotationView()
     func setupAnnotations(with persons: [Location])
-    func presentationControllerDidDismiss()
 }
 protocol MapViewModelProtocol: ButtonsActionProtocol, MapActionsProtocol {
     var view: MapView? { get }
@@ -39,7 +39,6 @@ final class MapViewModel: MapViewModelProtocol {
     func viewDidAppear() {
         view?.setRegion(MKCoordinateRegion(center: .init(latitude: 55.751749, longitude: 37.620602), span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1)))
     }
-    
 }
 // MARK:  ButtonsActionProtocol
 extension MapViewModel  {
@@ -76,14 +75,20 @@ extension MapViewModel {
         return mkView;
     }
     func didSelectAnnotationView(annotationView: MKAnnotationView) {
-        self.selectedAnnotation = annotationView.annotation
+        guard let selectedAnnotation = annotationView.annotation else { return }
+        self.selectedAnnotation = selectedAnnotation
         let detailView = DetailView()
-        let detailViewModel = DetailViewModel(view: detailView, location: locations.first(where: { $0.id == annotationView.annotation?.title }))
+        let detailViewModel = DetailViewModel(view: detailView,
+                                              location: locations.first(where: { $0.id == selectedAnnotation.title }))
         detailView.viewModel = detailViewModel
         if let sheet = detailView.sheetPresentationController {
             sheet.detents = [.medium()]
         }
+        detailView.sheetPresentationController?.delegate = view
         view?.present(detailView, animated: true, completion: nil)
+        view?.setRegion(.init(center: selectedAnnotation.coordinate,
+                              span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1)))
+       
     }
     func setupAnnotations(with persons: [Location]) {
         persons.forEach { person in
@@ -93,8 +98,9 @@ extension MapViewModel {
             self.view?.setupAnnotation(with: annotation)
         }
     }
-    func presentationControllerDidDismiss() {
+    func didDismissAnnotationView() {
         view?.deselectAnnotation(selectedAnnotation)
         selectedAnnotation = nil
     }
 }
+

@@ -20,9 +20,11 @@ final class DetailView: UIViewController {
     }()
     private lazy var persomImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.backgroundColor = .blue
+        imageView.backgroundColor = .white
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 10
+        imageView.layer.borderWidth = 2
+        imageView.layer.borderColor = UIColor.blue.cgColor
         return imageView
     }()
     private lazy var nameLabel: UILabel = {
@@ -76,3 +78,4 @@ extension DetailView: DetailViewProtocol {
     func setImage(imageName: String) { persomImageView.image = UIImage(named: imageName) }
     func setName(name: String) { nameLabel.text = name }
 }
+

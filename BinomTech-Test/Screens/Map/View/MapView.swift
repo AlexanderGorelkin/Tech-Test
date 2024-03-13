@@ -36,6 +36,7 @@ final class MapView: UIViewController {
         view.backgroundColor = .white
         viewModel?.viewDidLoaded()
         setupMap()
+        
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -81,8 +82,6 @@ extension MapView: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? { viewModel?.createAnnotationView(viewFor: annotation) }
     func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) { viewModel?.didChangeVisibleRegion(mapView)  }
 }
-// MARK:  UIAdaptivePresentationControllerDelegate
-extension MapView: UIAdaptivePresentationControllerDelegate {
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) { viewModel?.presentationControllerDidDismiss() }
+extension MapView: UISheetPresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) { viewModel?.didDismissAnnotationView() }
 }
-
